@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/prysmaticlabs/prysm/v5/config/params"
+	"github.com/prysmaticlabs/prysm/v5/consensus-types/primitives"
+	"github.com/prysmaticlabs/prysm/v5/time/slots"
 	"github.com/spf13/afero"
 )
 
@@ -11,23 +13,28 @@ import (
 // The instance of BlobStorage returned is backed by an in-memory virtual filesystem,
 // improving test performance and simplifying cleanup.
 func NewEphemeralBlobStorage(t testing.TB) *BlobStorage {
-	fs := afero.NewMemMapFs()
-	pruner, err := newBlobPruner(fs, params.BeaconConfig().MinEpochsForBlobsSidecarsRequest, withWarmedCache())
-	if err != nil {
-		t.Fatal("test setup issue", err)
-	}
-	return &BlobStorage{fs: fs, pruner: pruner}
+	return NewEphemeralBlobStorageUsingFs(t, afero.NewMemMapFs())
 }
 
-// NewEphemeralBlobStorageWithFs can be used by tests that want access to the virtual filesystem
+// NewEphemeralBlobStorageAndFs can be used by tests that want access to the virtual filesystem
 // in order to interact with it outside the parameters of the BlobStorage api.
-func NewEphemeralBlobStorageWithFs(t testing.TB) (afero.Fs, *BlobStorage) {
+func NewEphemeralBlobStorageAndFs(t testing.TB) (afero.Fs, *BlobStorage) {
 	fs := afero.NewMemMapFs()
-	pruner, err := newBlobPruner(fs, params.BeaconConfig().MinEpochsForBlobsSidecarsRequest, withWarmedCache())
-	if err != nil {
-		t.Fatal("test setup issue", err)
+	bs := NewEphemeralBlobStorageUsingFs(t, fs)
+	return fs, bs
+}
+
+func NewEphemeralBlobStorageUsingFs(t testing.TB, fs afero.Fs) *BlobStorage {
+	opts := []BlobStorageOption{
+		WithBlobRetentionEpochs(params.BeaconConfig().MinEpochsForBlobsSidecarsRequest),
+		WithFs(fs),
 	}
-	return fs, &BlobStorage{fs: fs, pruner: pruner}
+	bs, err := NewBlobStorage(opts...)
+	if err != nil {
+		t.Fatalf("error initializing test BlobStorage, err=%s", err.Error())
+	}
+	bs.WarmCache()
+	return bs
 }
 
 type BlobMocker struct {
@@ -37,17 +44,9 @@ type BlobMocker struct {
 
 // CreateFakeIndices creates empty blob sidecar files at the expected path for the given
 // root and indices to influence the result of Indices().
-func (bm *BlobMocker) CreateFakeIndices(root [32]byte, indices ...uint64) error {
+func (bm *BlobMocker) CreateFakeIndices(root [32]byte, slot primitives.Slot, indices ...uint64) error {
 	for i := range indices {
-		n := blobNamer{root: root, index: indices[i]}
-		if err := bm.fs.MkdirAll(n.dir(), directoryPermissions); err != nil {
-			return err
-		}
-		f, err := bm.fs.Create(n.path())
-		if err != nil {
-			return err
-		}
-		if err := f.Close(); err != nil {
+		if err := bm.bs.layout.notify(newBlobIdent(root, slots.ToEpoch(slot), indices[i])); err != nil {
 			return err
 		}
 	}
@@ -56,9 +55,8 @@ func (bm *BlobMocker) CreateFakeIndices(root [32]byte, indices ...uint64) error 
 
 // NewEphemeralBlobStorageWithMocker returns a *BlobMocker value in addition to the BlobStorage value.
 // BlockMocker encapsulates things blob path construction to avoid leaking implementation details.
-func NewEphemeralBlobStorageWithMocker(_ testing.TB) (*BlobMocker, *BlobStorage) {
-	fs := afero.NewMemMapFs()
-	bs := &BlobStorage{fs: fs}
+func NewEphemeralBlobStorageWithMocker(t testing.TB) (*BlobMocker, *BlobStorage) {
+	fs, bs := NewEphemeralBlobStorageAndFs(t)
 	return &BlobMocker{fs: fs, bs: bs}, bs
 }
 
