@@ -120,7 +120,7 @@ type BeaconChainConfig struct {
 	DomainApplicationMask             [4]byte `yaml:"DOMAIN_APPLICATION_MASK" spec:"true"`               // DomainApplicationMask defines the BLS signature domain for application mask.
 	DomainApplicationBuilder          [4]byte `yaml:"DOMAIN_APPLICATION_BUILDER" spec:"true"`            // DomainApplicationBuilder defines the BLS signature domain for application builder.
 	DomainBLSToExecutionChange        [4]byte `yaml:"DOMAIN_BLS_TO_EXECUTION_CHANGE" spec:"true"`        // DomainBLSToExecutionChange defines the BLS signature domain to change withdrawal addresses to ETH1 prefix
-	DomainBeaconBuilder               [4]byte `yaml:"DOMAIN_BEACON_BUILDER" spec:"false"`                // DomainBeaconBuilder defines the BLS signature domain used by builders [New in ePBS]
+	DomainBeaconBuilder               [4]byte `yaml:"DOMAIN_BEACON_BULDER" spec:"false"`                 // DomainBeaconBuilder defines the BLS signature domain used by builders [New in ePBS]
 	DomainPTCAttester                 [4]byte `yaml:"DOMAIN_PTC_ATTESTER" spec:"false"`                  // DomainPTCAttester defines the BLS signature domain used by PTC members [New in ePBS]
 
 	// Prysm constants.
@@ -159,8 +159,6 @@ type BeaconChainConfig struct {
 	CapellaForkEpoch     primitives.Epoch `yaml:"CAPELLA_FORK_EPOCH" spec:"true"`     // CapellaForkEpoch is used to represent the assigned fork epoch for capella.
 	DenebForkVersion     []byte           `yaml:"DENEB_FORK_VERSION" spec:"true"`     // DenebForkVersion is used to represent the fork version for deneb.
 	DenebForkEpoch       primitives.Epoch `yaml:"DENEB_FORK_EPOCH" spec:"true"`       // DenebForkEpoch is used to represent the assigned fork epoch for deneb.
-	ElectraForkVersion   []byte           `yaml:"ELECTRA_FORK_VERSION" spec:"true"`   // ElectraForkVersion is used to represent the fork version for deneb.
-	ElectraForkEpoch     primitives.Epoch `yaml:"ELECTRA_FORK_EPOCH" spec:"true"`     // ElectraForkEpoch is used to represent the assigned fork epoch for deneb.
 	EPBSForkVersion      []byte           // EPBSForkVersion is used to represent the fork version for ePBS.
 	EPBSForkEpoch        primitives.Epoch // EPBSForkEpoch is used to represent the assigned fork epoch for ePBS.
 

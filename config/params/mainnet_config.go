@@ -27,8 +27,6 @@ const (
 	mainnetCapellaForkEpoch = 194048 // April 12, 2023, 22:27:35 UTC
 	// Deneb Fork Epoch for mainnet config.
 	mainnetDenebForkEpoch = 269568 // March 13, 2024, 13:55:35 UTC
-	// Electra Fork Epoch for mainnet config
-	mainnetElectraForkEpoch = math.MaxUint64 // Far future / to be defined
 	// ePBS Fork Epoch for mainnet config.
 	mainnetEPBSForkEpoch = math.MaxUint64
 )
@@ -211,8 +209,6 @@ var mainnetBeaconConfig = &BeaconChainConfig{
 	CapellaForkEpoch:     mainnetCapellaForkEpoch,
 	DenebForkVersion:     []byte{4, 0, 0, 0},
 	DenebForkEpoch:       mainnetDenebForkEpoch,
-	ElectraForkVersion:   []byte{5, 0, 0, 0},
-	ElectraForkEpoch:     mainnetElectraForkEpoch,
 	EPBSForkVersion:      []byte{6, 0, 0, 0},
 	EPBSForkEpoch:        mainnetEPBSForkEpoch,
 
