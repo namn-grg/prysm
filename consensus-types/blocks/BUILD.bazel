@@ -4,6 +4,7 @@ go_library(
     name = "go_default_library",
     srcs = [
         "execution.go",
+        "execution_epbs.go",
         "factory.go",
         "getters.go",
         "kzg.go",
@@ -40,13 +41,17 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = [
+        "execution_epbs_test.go",
         "execution_test.go",
         "factory_test.go",
+        "getters_epbs_test.go",
         "getters_test.go",
         "kzg_test.go",
+        "proto_epbs_test.go",
         "proto_test.go",
         "roblob_test.go",
         "roblock_test.go",
+        "setters_test.go",
     ],
     embed = [":go_default_library"],
     deps = [
