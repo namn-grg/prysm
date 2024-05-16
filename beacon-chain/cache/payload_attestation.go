@@ -98,12 +98,13 @@ func (p *PayloadAttestationCache) Add(att *eth.PayloadAttestationMessage, idx ui
 	if agg.AggregationBits.BitAt(idx) {
 		return nil
 	}
-	agg.AggregationBits.SetBitAt(idx, true)
 	sig, err := aggregateSigFromMessage(agg, att)
 	if err != nil {
 		return err
 	}
 	agg.Signature = sig
+	agg.AggregationBits.SetBitAt(idx, true)
+
 	return nil
 }
 

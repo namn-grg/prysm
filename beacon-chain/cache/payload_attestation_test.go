@@ -93,3 +93,34 @@ func TestPayloadAttestationCache(t *testing.T) {
 	indices = att.AggregationBits.BitIndices()
 	require.DeepEqual(t, []int{int(idx)}, indices)
 }
+
+func TestPayloadAttestationCache_BadSignatureCorruptSet(t *testing.T) {
+	p := &PayloadAttestationCache{}
+
+	// Add attestation with index 5 and root `r` with an valid signature.
+	root := [32]byte{'r'}
+	idx := uint64(5)
+	msg := &eth.PayloadAttestationMessage{
+		Signature: bls.NewAggregateSignature().Marshal(),
+		Data: &eth.PayloadAttestationData{
+			BeaconBlockRoot: root[:],
+			PayloadStatus:   primitives.PAYLOAD_PRESENT,
+		},
+	}
+	require.NoError(t, p.Add(msg, idx))
+
+	// Add attestation with index 7 and root `r` but with an invalid signature.
+	idx = uint64(7)
+	msg = &eth.PayloadAttestationMessage{
+		Signature: []byte{1, 2, 3, 4},
+		Data: &eth.PayloadAttestationData{
+			BeaconBlockRoot: root[:],
+			PayloadStatus:   primitives.PAYLOAD_PRESENT,
+		},
+	}
+	require.ErrorContains(t, "could not create signature from byte slice", p.Add(msg, idx))
+
+	att := p.attestations[primitives.PAYLOAD_PRESENT]
+	indices := att.AggregationBits.BitIndices()
+	require.DeepEqual(t, []int{5}, indices) // 7 should be rejected
+}
