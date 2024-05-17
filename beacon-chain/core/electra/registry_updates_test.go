@@ -20,7 +20,7 @@ func TestProcessRegistryUpdates(t *testing.T) {
 		check func(*testing.T, state.BeaconState)
 	}{
 		{
-			name: "No rotation", // No validators activated?
+			name: "No rotation", // No validators exited.
 			state: func() state.BeaconState {
 				base := &eth.BeaconState{
 					Slot: 5 * params.BeaconConfig().SlotsPerEpoch,
